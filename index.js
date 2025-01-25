@@ -408,7 +408,7 @@
     * AUTO-HIDE UI LOGIC
     ***************************************************************/
   // Time (in ms) to wait before auto-hiding the UI elements.
-  var UI_HIDE_DELAY = 3000; 
+  var UI_HIDE_DELAY = 1500; 
   // Reference to our timer so we can reset it on user activity.
   var hideUITimer = null;
 
