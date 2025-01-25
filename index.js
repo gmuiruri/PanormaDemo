@@ -166,8 +166,8 @@
   var viewOutElement = document.querySelector('#viewOut');
 
   // Dynamic parameters for controls.
-  var velocity = 0.7;
-  var friction = 3;
+  var velocity = -0.5;
+  var friction = 2;
 
   // Associate view controls with elements.
   var controls = viewer.controls();
@@ -177,6 +177,21 @@
   controls.registerMethod('rightElement', new Marzipano.ElementPressControlMethod(viewRightElement,  'x',  velocity, friction), true);
   controls.registerMethod('inElement',    new Marzipano.ElementPressControlMethod(viewInElement,  'zoom', -velocity, friction), true);
   controls.registerMethod('outElement',   new Marzipano.ElementPressControlMethod(viewOutElement, 'zoom',  velocity, friction), true);
+
+  // Collect whichever UI elements you want to auto-hide.
+  var uiElements = [
+  document.querySelector('#sceneListToggle'),
+  document.querySelector('#autorotateToggle'),
+  document.querySelector('#fullscreenToggle'),
+  document.querySelector('#viewUp'),
+  document.querySelector('#viewDown'),
+  document.querySelector('#viewLeft'),
+  document.querySelector('#viewRight'),
+  document.querySelector('#viewIn'),
+  document.querySelector('#viewOut'),
+  document.querySelector('#sceneList'),
+  document.querySelector('#titleBar')
+  ];
 
   function sanitize(s) {
     return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;');
@@ -388,5 +403,67 @@
 
   // Display the initial scene.
   switchScene(scenes[0]);
+
+    /***************************************************************
+    * AUTO-HIDE UI LOGIC
+    ***************************************************************/
+  // Time (in ms) to wait before auto-hiding the UI elements.
+  var UI_HIDE_DELAY = 3000; 
+  // Reference to our timer so we can reset it on user activity.
+  var hideUITimer = null;
+
+    /**
+    * Add the .ui-hidden class to each UI element,
+    * making them fade out and become non-interactive.
+    */
+  function hideUI() {
+    uiElements.forEach(function (el) {
+      if (el) {
+        el.classList.add('ui-hidden');
+      }
+    });
+  }
+
+    /**
+    * Remove the .ui-hidden class from each UI element,
+    * making them fully visible and interactive again.
+    */
+  function showUI() {
+    uiElements.forEach(function (el) {
+      if (el) {
+        el.classList.remove('ui-hidden');
+      }
+    });
+  }
+
+    /**
+    * Resets the inactivity timer whenever the user interacts.
+    * 1. Shows the UI immediately.
+    * 2. Clears any existing timer.
+    * 3. Starts a new timer that will hide the UI after UI_HIDE_DELAY.
+    */
+  function resetUITimer() {
+    showUI();
+
+    // Clear existing timer if it’s still running
+    if (hideUITimer) {
+      clearTimeout(hideUITimer);
+    }
+
+    // Create a new timer
+    hideUITimer = setTimeout(function () {
+      hideUI();
+    }, UI_HIDE_DELAY);
+  }
+
+    // Listen for user interactions to reset the timer.
+  document.addEventListener('mousemove', resetUITimer);
+  document.addEventListener('mousedown', resetUITimer);
+  document.addEventListener('touchstart', resetUITimer);
+  document.addEventListener('touchmove', resetUITimer);
+
+    // Start off by resetting the timer once on page load
+  resetUITimer();
+  
 
 })();

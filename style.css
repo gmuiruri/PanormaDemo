@@ -828,3 +828,10 @@ body.view-control-buttons .viewControlButton {
 .viewControlButton-6 {
   margin-left: 105px;
 }
+
+
+.ui-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease; /* Smooth fade effect */
+}
