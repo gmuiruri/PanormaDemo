@@ -81,7 +81,6 @@ body.multiple-scenes.mobile #titleBar {
   padding: 5px;
   background-color: rgb(58,68,84);
   background-color: rgba(58,68,84,0.8);
-  opacity: 0.5;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -789,7 +788,6 @@ body.single-scene #sceneList, body.single-scene #sceneListToggle {
   padding: 5px;
   background-color: rgb(103,115,131);
   background-color: rgba(103,115,131,0.8);
-  opacity: 0.5;
 }
 
 body.view-control-buttons .viewControlButton {
@@ -829,11 +827,4 @@ body.view-control-buttons .viewControlButton {
 }
 .viewControlButton-6 {
   margin-left: 105px;
-}
-
-
-.ui-hidden {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease; /* Smooth fade effect */
 }

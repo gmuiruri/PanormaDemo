@@ -70,15 +70,6 @@
   // Initialize viewer.
   var viewer = new Marzipano.Viewer(panoElement, viewerOpts);
 
-  // Disable default dragging so it doesn't conflict with custom controls. 
-  viewer.controls().disableMethod('mouseViewDrag');
-  viewer.controls().disableMethod('touchViewDrag');
-
-  // Query UI elements
-  var sceneListToggleElement = document.querySelector('#sceneListToggle');
-  var autorotateToggleElement = document.querySelector('#autorotateToggle');
-  // etc.
-
   // Create scenes.
   var scenes = data.scenes.map(function(data) {
     var urlPrefix = "tiles";
@@ -175,8 +166,8 @@
   var viewOutElement = document.querySelector('#viewOut');
 
   // Dynamic parameters for controls.
-  var velocity = -0.5;
-  var friction = 2;
+  var velocity = 0.7;
+  var friction = 3;
 
   // Associate view controls with elements.
   var controls = viewer.controls();
@@ -186,21 +177,6 @@
   controls.registerMethod('rightElement', new Marzipano.ElementPressControlMethod(viewRightElement,  'x',  velocity, friction), true);
   controls.registerMethod('inElement',    new Marzipano.ElementPressControlMethod(viewInElement,  'zoom', -velocity, friction), true);
   controls.registerMethod('outElement',   new Marzipano.ElementPressControlMethod(viewOutElement, 'zoom',  velocity, friction), true);
-
-  // Collect whichever UI elements you want to auto-hide.
-  var uiElements = [
-  document.querySelector('#sceneListToggle'),
-  document.querySelector('#autorotateToggle'),
-  document.querySelector('#fullscreenToggle'),
-  document.querySelector('#viewUp'),
-  document.querySelector('#viewDown'),
-  document.querySelector('#viewLeft'),
-  document.querySelector('#viewRight'),
-  document.querySelector('#viewIn'),
-  document.querySelector('#viewOut'),
-  document.querySelector('#sceneList'),
-  document.querySelector('#titleBar')
-  ];
 
   function sanitize(s) {
     return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;');
@@ -412,187 +388,5 @@
 
   // Display the initial scene.
   switchScene(scenes[0]);
-
-    /***************************************************************
-    * AUTO-HIDE UI LOGIC
-    ***************************************************************/
-  // Time (in ms) to wait before auto-hiding the UI elements.
-  var UI_HIDE_DELAY = 1500; 
-  // Reference to our timer so we can reset it on user activity.
-  var hideUITimer = null;
-
-    /**
-    * Add the .ui-hidden class to each UI element,
-    * making them fade out and become non-interactive.
-    */
-  function hideUI() {
-    uiElements.forEach(function (el) {
-      if (el) {
-        el.classList.add('ui-hidden');
-      }
-    });
-  }
-
-    /**
-    * Remove the .ui-hidden class from each UI element,
-    * making them fully visible and interactive again.
-    */
-  function showUI() {
-    uiElements.forEach(function (el) {
-      if (el) {
-        el.classList.remove('ui-hidden');
-      }
-    });
-  }
-
-    /**
-    * Resets the inactivity timer whenever the user interacts.
-    * 1. Shows the UI immediately.
-    * 2. Clears any existing timer.
-    * 3. Starts a new timer that will hide the UI after UI_HIDE_DELAY.
-    */
-  function resetUITimer() {
-    showUI();
-
-    // Clear existing timer if it’s still running
-    if (hideUITimer) {
-      clearTimeout(hideUITimer);
-    }
-
-    // Create a new timer
-    hideUITimer = setTimeout(function () {
-      hideUI();
-    }, UI_HIDE_DELAY);
-  }
-
-    // Listen for user interactions to reset the timer.
-  document.addEventListener('mousemove', resetUITimer);
-  document.addEventListener('mousedown', resetUITimer);
-  document.addEventListener('touchstart', resetUITimer);
-  document.addEventListener('touchmove', resetUITimer);
-
-    // Start off by resetting the timer once on page load
-  resetUITimer();
-  
-  /***************************************************************
-  * CUSTOM DRAG + INERTIA LOGIC
-  ***************************************************************/
-
-    // Variables for tracking dragging state and velocity
-  var isDragging = false;
-  var lastPointerPos = { x: 0, y: 0 };
-  var lastTime = 0;
-  var velocity = { x: 0, y: 0 };
-  var friction = 0.93; // Adjust for how quickly inertia slows down
-  var minVelocity = 0.001; // Stop threshold
-
-    // Sensitivity factors: tweak these for your ideal "feel"
-  var yawFactor = 0.001;   // How fast to rotate yaw per pixel
-  var pitchFactor = 0.001; // How fast to rotate pitch per pixel
-
-    /**
-    * onPointerDown: Fires when the user presses down with mouse/touch/stylus.
-    * - We set up initial tracking for position and time.
-    */
-  function onPointerDown(e) {
-    // Standard pattern to support pointer events or fallback
-    var clientX = e.clientX || (e.touches && e.touches[0].clientX);
-    var clientY = e.clientY || (e.touches && e.touches[0].clientY);
-
-    isDragging = true;
-    velocity.x = 0;
-    velocity.y = 0;
-    lastPointerPos.x = clientX;
-    lastPointerPos.y = clientY;
-    lastTime = performance.now(); // High-resolution timestamp
-  }
-
-    /**
-    * onPointerMove: Fires continuously as the user moves pointer.
-    * - Rotates the Marzipano view in response to pointer deltas (dx, dy).
-    * - Captures velocity (movement / time delta) for inertia.
-    */
-  function onPointerMove(e) {
-    if (!isDragging) return;
-
-    var currentTime = performance.now();
-    var deltaTime = currentTime - lastTime;
-
-      // Get pointer’s current x and y
-    var clientX = e.clientX || (e.touches && e.touches[0].clientX);
-    var clientY = e.clientY || (e.touches && e.touches[0].clientY);
-
-      // Calculate distance moved since last event
-    var dx = clientX - lastPointerPos.x;
-    var dy = clientY - lastPointerPos.y;
-
-    // Rotate the view. Negative signs may be reversed based on preference.
-    // 'rotate' expects an object like { yaw: _, pitch: _ } in radians.
-    viewer.controls().rotate({
-      yaw: -dx * yawFactor,
-      pitch: -dy * pitchFactor
-    });
-
-      // Calculate velocity in pixels/ms
-    velocity.x = dx / deltaTime;
-    velocity.y = dy / deltaTime;
-
-      // Update stored values
-    lastPointerPos.x = clientX;
-    lastPointerPos.y = clientY;
-    lastTime = currentTime;
-  }
-
-    /**
-    * onPointerUp: Fires when the user lifts the pointer (mouse up, touch end).
-    * - We stop direct dragging and start the inertia animation.
-    */
-  function onPointerUp(e) {
-    isDragging = false;
-      // Kick off inertia only if there's significant velocity
-    requestAnimationFrame(continueInertia);
-  }
-
-    /**
-    * continueInertia: Repeatedly applies velocity to keep rotating the panorama
-    * until velocity falls below a threshold (minVelocity).
-    */
-  function continueInertia() {
-    // If velocity is too low, we stop
-    if (Math.abs(velocity.x) < minVelocity && Math.abs(velocity.y) < minVelocity) {
-      return; // end inertia
-    }
-
-      // Estimate frame time for smoother movement. Typically ~16ms for ~60fps.
-    var frameTime = 16; 
-
-      // Apply rotation from the last computed velocity.
-      // Multiply by frameTime so we move the same distance each frame.
-    viewer.controls().rotate({
-      yaw: -velocity.x * yawFactor * frameTime,
-      pitch: -velocity.y * pitchFactor * frameTime
-    });
-
-      // Apply friction to gradually slow velocity
-    velocity.x *= friction;
-    velocity.y *= friction;
-
-      // Schedule the next frame
-    requestAnimationFrame(continueInertia);
-  }
-
-    /***************************************************************
-    * EVENT LISTENER HOOKUP
-    * If using pointer events, we do pointerdown/up/move.
-    * If you need fallback for older browsers, add mouse + touch events similarly.
-    ***************************************************************/
-  var stage = viewer.stage();
-  stage.addEventListener('pointerdown', onPointerDown, { passive: false });
-  stage.addEventListener('pointermove', onPointerMove, { passive: false });
-  stage.addEventListener('pointerup', onPointerUp, { passive: false });
-
-    // If you want to ensure you catch the "pointerup" even if the user
-    // drags outside the viewer, also consider:
-  document.addEventListener('pointerup', onPointerUp);
 
 })();
