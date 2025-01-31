@@ -265,6 +265,7 @@ body.fullscreen-enabled.mobile #autorotateToggle {
   margin-left: 0;
   -webkit-transition: margin-left 0.5s ease-in-out;
   transition: margin-left 0.5s ease-in-out;
+  display: none;
 }
 
 .mobile #sceneList {
@@ -788,6 +789,7 @@ body.single-scene #sceneList, body.single-scene #sceneListToggle {
   padding: 5px;
   background-color: rgb(103,115,131);
   background-color: rgba(103,115,131,0.8);
+  display: none;
 }
 
 body.view-control-buttons .viewControlButton {
