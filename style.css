@@ -49,6 +49,8 @@ a, a:hover, a:active, a:visited {
   right: 40px;
   height: 40px;
   text-align: center;
+  display: none;
+  
 }
 
 .mobile #titleBar {
@@ -105,6 +107,7 @@ body.multiple-scenes.mobile #titleBar {
   padding: 5px;
   background-color: rgb(103,115,131);
   background-color: rgba(103,115,131,0.8);
+  opacity: 0;
 }
 
 .mobile #fullscreenToggle {
@@ -146,7 +149,7 @@ body.fullscreen-enabled #fullscreenToggle {
 }
 
 #autorotateToggle {
-  display: block;
+  display: none;
   position: absolute;
   top: 0;
   right: 0;
@@ -201,6 +204,7 @@ body.fullscreen-enabled.mobile #autorotateToggle {
 }
 
 #sceneListToggle {
+  display: none;
   position: absolute;
   top: 0;
   left: 0;
@@ -209,6 +213,7 @@ body.fullscreen-enabled.mobile #autorotateToggle {
   padding: 5px;
   background-color: rgb(103,115,131);
   background-color: rgba(103,115,131,0.8);
+  
 }
 
 .mobile #sceneListToggle {
@@ -238,7 +243,7 @@ body.fullscreen-enabled.mobile #autorotateToggle {
 }
 
 #sceneListToggle .icon.on {
-  display: none;
+  
 }
 
 #sceneListToggle .icon.off {
@@ -254,6 +259,7 @@ body.fullscreen-enabled.mobile #autorotateToggle {
 }
 
 #sceneList {
+  display: none;
   position: absolute;
   top: 0;
   left: -220px;
@@ -265,7 +271,7 @@ body.fullscreen-enabled.mobile #autorotateToggle {
   margin-left: 0;
   -webkit-transition: margin-left 0.5s ease-in-out;
   transition: margin-left 0.5s ease-in-out;
-  display: none;
+  
 }
 
 .mobile #sceneList {
@@ -789,7 +795,7 @@ body.single-scene #sceneList, body.single-scene #sceneListToggle {
   padding: 5px;
   background-color: rgb(103,115,131);
   background-color: rgba(103,115,131,0.8);
-  display: none;
+  opacity: 0;
 }
 
 body.view-control-buttons .viewControlButton {
